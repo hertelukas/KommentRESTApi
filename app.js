@@ -33,14 +33,14 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 app.get('/', function(req, res){
     if(connected){
-        res.json({message: "Please read the documentation to connect to the API.", code: 0, connection: "The server is connected to the database!"});
+        res.json({message: "Please read the documentation to connect to the API.", code: 0, database: "connected"});
     }else{
-        res.json({message: "Please read the documentation to connect to the API.", code: 2, connection: "The server is not connected to the database!"});
+        res.json({message: "Please read the documentation to connect to the API.", code: 2, database: "not connected"});
     }
 });
 
 //Get notes from user
-app.get('/notes', passport.authenticate('local'), function(req, res){
+app.post('/loadNotes', passport.authenticate('local'), function(req, res){
     User.findOne({username: req.body.username}).populate("notes").exec(function(err, foundUser){
         if(err){
             res.json({message: err, code: 1});
@@ -69,6 +69,38 @@ app.post('/note', passport.authenticate('local'), function(req, res){
                         res.json({message: "Note created", code: 200, user: foundUser, createdNote: createdNote});
                     }
                 })
+            }
+        });
+    }
+});
+
+//Delete route
+app.delete('/note',passport.authenticate('local'), function(req, res){
+    if(!req.body._id){
+        res.json({message: "No note _id found in body", code: 3});
+    }else{
+        User.findOne({username: req.body.username}).populate('notes').exec(function(err, foundUser){
+            if(err){
+                res.json({message: err, code: 1});
+            }else{
+                var i = 0;
+                var noteDeleted = false;
+                foundUser.notes.forEach(note => {
+                    if(note._id == req.body._id){
+                        foundUser.notes[i].delete();
+                        foundUser.save();
+                        noteDeleted = true;
+                    }
+                    i++;
+
+                    if(i === foundUser.notes.length){
+                        if(noteDeleted){
+                            res.json({message: "Note deleted", code: 200});
+                        }else{
+                            res.json({message: "Note not found", code: 202});
+                        }
+                    }
+                });
             }
         });
     }

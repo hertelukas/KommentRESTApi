@@ -7,7 +7,7 @@ var User     = require('./models/user'),
 
 var connected = false;
 
-mongoose.connect("mongodb+srv://lukas:VxhV440Px28DJWnw@main-gi9gw.mongodb.net/test",{
+mongoose.connect(process.env.DATABASEURL || "mongodb://localhost:27017/komment",{
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useCreateIndex: true,

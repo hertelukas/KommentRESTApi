@@ -33,9 +33,9 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 app.get('/', function(req, res){
     if(connected){
-        res.json({message: "Please read the documentation to connect to the API.", connection: "The server is connected to the database!"});
+        res.json({message: "Please read the documentation to connect to the API.", code: 0, connection: "The server is connected to the database!"});
     }else{
-        res.json({message: "Please read the documentation to connect to the API.", connection: "The server is not connected to the database!"});
+        res.json({message: "Please read the documentation to connect to the API.", code: 2, connection: "The server is not connected to the database!"});
     }
 });
 

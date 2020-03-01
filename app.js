@@ -31,12 +31,6 @@ passport.deserializeUser(User.deserializeUser());
 
 app.use(bodyParser.urlencoded({extended: true}));
 
-app.use(require('express-session')({
-    secret: process.env.SECRET || "Please provide a passphrase",
-    resave: false,
-    saveUninitialized: false
-})); 
-
 app.get('/', function(req, res){
     if(connected){
         res.json({message: "Please read the documentation to connect to the API.", connection: "The server is connected to the database!"});

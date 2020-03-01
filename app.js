@@ -5,6 +5,8 @@ var express  = require('express'),
 var User     = require('./models/user'),
     Note     = require('./models/note');
 
+var connected = false;
+
 mongoose.connect("mongodb+srv://lukas:VxhV440Px28DJWnw@main-gi9gw.mongodb.net/test",{
     useNewUrlParser: true,
     useUnifiedTopology: true,
@@ -12,12 +14,17 @@ mongoose.connect("mongodb+srv://lukas:VxhV440Px28DJWnw@main-gi9gw.mongodb.net/te
     useFindAndModify: false
 }).then(() =>{
     console.log("connected to the db!");
+    connected = true;
 }).catch(err => {
     console.log("Error connecting to the db: " + err)
 });
 
 app.get('/', function(req, res){
-    res.send("Please read the documentation to connect to the API");
+    if(connected){
+        res.send("Please read the documentation to connect to the API. The server is connected to the database!");
+    }else{
+        res.send("Please read the documentation to connect to the API. The server is not connected to the database!");
+    }
 });
 
 app.get('/notes', function(req, res){

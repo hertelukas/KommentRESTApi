@@ -1,6 +1,7 @@
-var express  = require('express'),
-    app      = express(),
-    mongoose = require('mongoose');
+var express     = require('express'),
+    app         = express(),
+    bodyParser  = require('body-parser'),
+    mongoose    = require('mongoose');
 
 var User     = require('./models/user'),
     Note     = require('./models/note');
@@ -19,6 +20,8 @@ mongoose.connect(process.env.DATABASEURL || "mongodb://localhost:27017/komment",
     console.log("Error connecting to the db: " + err)
 });
 
+app.use(bodyParser.urlencoded({extended: true}));
+
 app.get('/', function(req, res){
     if(connected){
         res.send("Please read the documentation to connect to the API. The server is connected to the database!");
@@ -28,6 +31,7 @@ app.get('/', function(req, res){
 });
 
 app.get('/notes', function(req, res){
+    console.log(req.body.username);
     Note.find({}, function(err, notes){
         if(err){
             res.send(err);

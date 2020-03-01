@@ -39,6 +39,7 @@ app.get('/', function(req, res){
     }
 });
 
+//Get notes from user
 app.get('/notes', passport.authenticate('local'), function(req, res){
     User.findOne({username: req.body.username}).populate("notes").exec(function(err, foundUser){
         if(err){
@@ -49,23 +50,28 @@ app.get('/notes', passport.authenticate('local'), function(req, res){
     })
 });
 
+//Create a new note
 app.post('/note', passport.authenticate('local'), function(req, res){
-    User.findOne({username: req.body.username}, function(err, foundUser){
-        if(err){
-            res.json({message: err, code: 1});
-        } else{
-            var newNote = new Note({title: req.body.title, content: req.body.content, lastEdited: new Date()});
-            Note.create(newNote, function(req, createdNote){
-                if(err){
-                    res.json({message: err, code: 1});
-                }else{
-                    foundUser.notes.push(createdNote);
-                    foundUser.save();
-                    res.json({message: "Note created", code: 200, user: foundUser, createdNote: createdNote});
-                }
-            })
-        }
-    })
+    if(!req.body.title){
+        res.json({message: "Provide at least a title", code: 201});
+    }else{
+        User.findOne({username: req.body.username}, function(err, foundUser){
+            if(err){
+                res.json({message: err, code: 1});
+            } else{
+                var newNote = new Note({title: req.body.title, content: req.body.content, lastEdited: new Date()});
+                Note.create(newNote, function(req, createdNote){
+                    if(err){
+                        res.json({message: err, code: 1});
+                    }else{
+                        foundUser.notes.push(createdNote);
+                        foundUser.save();
+                        res.json({message: "Note created", code: 200, user: foundUser, createdNote: createdNote});
+                    }
+                })
+            }
+        });
+    }
 });
 
 //---------------------

@@ -1,13 +1,12 @@
 var express       = require('express'),
     app           = express(),
     bodyParser    = require('body-parser'),
-    mongoose      = require('mongoose'),
-    passport      = require('passport'),
-    LocalStrategy = require("passport-local");
-
+    mongoose      = require('mongoose');
 
 var User     = require('./models/user'),
     Note     = require('./models/note');
+
+var middleware  = require('./middleware');
 
 var connected = false;
 
@@ -23,39 +22,40 @@ mongoose.connect(process.env.DATABASEURL || "mongodb://localhost:27017/komment",
     console.log("Error connecting to the db: " + err)
 });
 
-app.use(passport.initialize());
-app.use(passport.session());
-passport.use(new LocalStrategy(User.authenticate()));
-passport.serializeUser(User.serializeUser());
-passport.deserializeUser(User.deserializeUser());
-
 app.use(bodyParser.urlencoded({extended: true}));
 
-app.get('/', function(req, res){
-    if(connected){
-        res.json({message: "Please read the documentation to connect to the API.", code: 0, database: "connected"});
-    }else{
-        res.json({message: "Please read the documentation to connect to the API.", code: 2, database: "not connected"});
-    }
+//-------------------
+//Notes routes
+//Get notes from user
+//-------------------
+app.get('/notes', middleware.handleAuthentication, function(req, res){
+    User.findOne({username: req.headers.username}).populate("notes").exec(function(err, foundUser){
+        res.json({user: foundUser, code: 0});        
+    });
 });
 
-//Get notes from user
-app.post('/loadNotes', passport.authenticate('local'), function(req, res){
-    User.findOne({username: req.body.username}).populate("notes").exec(function(err, foundUser){
-        if(err){
-            res.json({message: err, code: 1});
-        }else{
-            res.json({user: foundUser, code: 0});
-        }
-    })
+app.get('/notes/:id', middleware.handleAuthentication,  function(req, res){
+    User.findOne({username: req.headers.username}).populate("notes").exec(function(err, foundUser){
+        var i = 0;
+
+        foundUser.notes.forEach(note => {
+            i++;
+            if(note._id == req.params.id){
+                res.json({note: note});
+            }
+            else if(i === foundUser.notes.length){
+                res.send("No note found");
+            }
+        });
+    });
 });
 
 //Create a new note
-app.post('/note', passport.authenticate('local'), function(req, res){
+app.post('/notes', middleware.handleAuthentication, function(req, res){
     if(!req.body.title){
         res.json({message: "Provide at least a title", code: 201});
     }else{
-        User.findOne({username: req.body.username}, function(err, foundUser){
+        User.findOne({username: req.headers.username}, function(err, foundUser){
             if(err){
                 res.json({message: err, code: 1});
             } else{
@@ -68,14 +68,14 @@ app.post('/note', passport.authenticate('local'), function(req, res){
                         foundUser.save();
                         res.json({message: "Note created", code: 200, user: foundUser, createdNote: createdNote});
                     }
-                })
+                });
             }
         });
     }
 });
 
 //Delete route
-app.delete('/note',passport.authenticate('local'), function(req, res){
+app.delete('/notes', middleware.handleAuthentication, function(req, res){
     if(!req.body._id){
         res.json({message: "No note _id found in body", code: 3});
     }else{
@@ -88,7 +88,7 @@ app.delete('/note',passport.authenticate('local'), function(req, res){
                 foundUser.notes.forEach(note => {
                     if(note._id == req.body._id){
                         foundUser.notes[i].delete();
-                        foundUser.save();
+                        foundUser.save();Authentication
                         noteDeleted = true;
                     }
                     i++;
@@ -106,23 +106,28 @@ app.delete('/note',passport.authenticate('local'), function(req, res){
     }
 });
 
+//Edit route
+app.put('/notes/:id', middleware.handleAuthentication, function(req, res){
+
+});
+
 //---------------------
-//Authentication routes
+//User routes
 //---------------------
 
-app.post('/register', function(req, res){
-    if(!req.body.username || !req.body.password){
+app.post('/users', function(req, res){
+    if(!req.headers.username || !req.headers.password){
         res.json({message: "Provide a username and a password", code: "102"});
     }else{
-        var newUser = new User({username: req.body.username});
-        User.find({username: req.body.username}, function(err, foundUser){
+        var newUser = new User({username: req.headers.username});
+        User.find({username: req.headers.username}, function(err, foundUser){
             if(err){
                 res.json({message: err, code: 1});
             }else{
                 if(foundUser.length){
                     res.json({message: "Error: A user with this username exists already", code: "101"});
                 }else{
-                    User.register(newUser, req.body.password, function(err, result){
+                    User.register(newUser, req.headers.password, function(err, result){
                         if(err){
                             res.json({message: err, code: 1});
                         }else{
@@ -136,6 +141,9 @@ app.post('/register', function(req, res){
     }
 });
 
+app.delete('/users/:id', middleware.handleAuthentication, function(req, res){
+
+});
 
 
 var port = process.env.PORT || 3000;

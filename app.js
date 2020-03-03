@@ -29,8 +29,9 @@ app.use(bodyParser.urlencoded({extended: true}));
 //Get notes from user
 //-------------------
 app.get('/notes', middleware.handleAuthentication, function(req, res){
+    Console.log("Get notes request from " + req.headers.username);
     User.findOne({username: req.headers.username}).populate("notes").exec(function(err, foundUser){
-        res.json({user: foundUser, code: 0});        
+        res.json({user: foundUser, code: 0});  
     });
 });
 
@@ -52,6 +53,7 @@ app.get('/notes/:id', middleware.handleAuthentication,  function(req, res){
 
 //Create a new note
 app.post('/notes', middleware.handleAuthentication, function(req, res){
+    Console.log("Post notes request from " + req.headers.username);
     if(!req.body.title){
         res.json({message: "Provide at least a title", code: 201});
     }else{

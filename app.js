@@ -39,11 +39,11 @@ app.get('/notes/:id', middleware.handleAuthentication,  function(req, res){
         var i = 0;
 
         foundUser.notes.forEach(note => {
-            i++;
             if(note._id == req.params.id){
                 res.json({note: note});
             }
-            else if(i === foundUser.notes.length){
+            i++;
+            if(i === foundUser.notes.length){
                 res.send("No note found");
             }
         });
@@ -92,7 +92,6 @@ app.delete('/notes', middleware.handleAuthentication, function(req, res){
                         noteDeleted = true;
                     }
                     i++;
-
                     if(i === foundUser.notes.length){
                         if(noteDeleted){
                             res.json({message: "Note deleted", code: 200});

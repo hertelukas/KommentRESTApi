@@ -1,7 +1,8 @@
-var express       = require('express'),
-    app           = express(),
-    bodyParser    = require('body-parser'),
-    mongoose      = require('mongoose');
+const express       = require('express'),
+      app           = express(),
+      bodyParser    = require('body-parser'),
+      mongoose      = require('mongoose'),
+      bcrypt        = require('bcrypt');
 
 var User     = require('./models/user'),
     Note     = require('./models/note');
@@ -10,6 +11,7 @@ var middleware  = require('./middleware');
 
 var connected = false;
 
+//Mongoose setup
 mongoose.connect(process.env.DATABASEURL || "mongodb://localhost:27017/komment",{
     useNewUrlParser: true,
     useUnifiedTopology: true,
@@ -22,6 +24,10 @@ mongoose.connect(process.env.DATABASEURL || "mongodb://localhost:27017/komment",
     console.log("Error connecting to the db: " + err)
 });
 
+//Bcrypt setup
+const saltRounds = 10;
+
+//Body Parser setup
 app.use(bodyParser.urlencoded({extended: true}));
 
 //-------------------
@@ -76,7 +82,6 @@ app.post('/notes', middleware.handleAuthentication, function(req, res){
     }
 });
 
-//Delete route
 app.delete('/notes', middleware.handleAuthentication, function(req, res){
     if(!req.body._id){
         res.json({message: "No note _id found in body", code: 3});
@@ -120,25 +125,27 @@ app.post('/users', function(req, res){
     if(!req.headers.username || !req.headers.password){
         res.json({message: "Provide a username and a password", code: "102"});
     }else{
-        var newUser = new User({username: req.headers.username});
-        User.find({username: req.headers.username}, function(err, foundUser){
+        var username = req.headers.username;
+        User.find({username: username}, function(err, foundUser){
             if(err){
                 res.json({message: err, code: 1});
             }else{
                 if(foundUser.length){
                     res.json({message: "Error: A user with this username exists already", code: "101"});
                 }else{
-                    User.register(newUser, req.headers.password, function(err, result){
-                        if(err){
-                            res.json({message: err, code: 1});
-                        }else{
-                            res.json({message: "User created", code: "100", user: result})
-                        }
+                    bcrypt.hash(req.headers.password, saltRounds, function(err, hash){
+                        var newUser = ({username: username, hash: hash});
+                        User.create(newUser, function(req, createdUser){
+                            if(err){
+                                res.json({message: err, code: 1});
+                            }else{
+                                res.json({message: "User created", code: "100", user: createdUser})
+                            }
+                        });
                     });
                 }
             }
         });
-
     }
 });
 

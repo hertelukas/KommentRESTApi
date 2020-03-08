@@ -65,12 +65,12 @@ app.post('/notes', middleware.handleAuthentication, function(req, res){
     }else{
         User.findOne({username: req.headers.username}, function(err, foundUser){
             if(err){
-                res.json({message: err, code: 1});
+                res.json({message: err, code: 500});
             } else{
                 var newNote = new Note({title: req.body.title, content: req.body.content, lastEdited: new Date()});
                 Note.create(newNote, function(req, createdNote){
                     if(err){
-                        res.json({message: err, code: 1});
+                        res.json({message: err, code: 500});
                     }else{
                         foundUser.notes.push(createdNote);
                         foundUser.save();
@@ -128,7 +128,7 @@ app.post('/users', function(req, res){
         var username = req.headers.username;
         User.find({username: username}, function(err, foundUser){
             if(err){
-                res.json({message: err, code: 1});
+                res.json({message: err, code: 500});
             }else{
                 if(foundUser.length){
                     res.json({message: "Error: A user with this username exists already", code: "101"});
@@ -137,9 +137,9 @@ app.post('/users', function(req, res){
                         var newUser = ({username: username, hash: hash});
                         User.create(newUser, function(req, createdUser){
                             if(err){
-                                res.json({message: err, code: 1});
+                                res.json({message: err, code: 500});
                             }else{
-                                res.json({message: "User created", code: "100", user: createdUser})
+                                res.json({message: "User created", code: 100, user: createdUser})
                             }
                         });
                     });
@@ -148,6 +148,18 @@ app.post('/users', function(req, res){
         });
     }
 });
+
+app.get('/users', middleware.handleAuthentication, function(req, res){
+    User.findOne({username: req.headers.username}, function(err, foundUser){
+        if(err){
+            res.json({message: err, code: 500});
+        }else{
+            res.json({message: "Authentication successfull", code: 104, user: foundUser})
+        }
+    });
+
+
+})
 
 app.delete('/users/:id', middleware.handleAuthentication, function(req, res){
 

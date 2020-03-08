@@ -4,6 +4,7 @@ var middlewareObj = {};
 
 
 middlewareObj.handleAuthentication = function(req, res, next){
+    console.log("Authenticating " + req.headers.username);
     if(req.headers.username && req.headers.password){
         User.findOne({username: req.headers.username}, function(err, foundUser){
             if(foundUser.hash != null){

@@ -10,16 +10,19 @@ middlewareObj.handleAuthentication = function(req, res, next){
                 bcrypt.compare(req.headers.password, foundUser.hash, function(err, result){
                     if(err){
                         console.log(err);
+                        return null;
                     }
                     if(result){
                         return next();
                     }
                     else{
                         res.json({code: 401, message: "Unauthorized"});
+                        return null;
                     }
                 });
             }else{
                 res.json({code: 404, message: "User not found"});
+                return null;
             }
         });
     }

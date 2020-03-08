@@ -15,7 +15,7 @@ middlewareObj.handleAuthentication = function(req, res, next){
                         return next();
                     }
                     else{
-                        res.json({message: "Password is not correct"});
+                        res.json({code: 401, message: "Unauthorized"});
                     }
                 });
             }

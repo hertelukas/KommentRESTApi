@@ -86,7 +86,7 @@ app.delete('/notes', middleware.handleAuthentication, function(req, res){
     if(!req.body._id){
         res.json({message: "No note _id found in body", code: 3});
     }else{
-        User.findOne({username: req.body.username}).populate('notes').exec(function(err, foundUser){
+        User.findOne({username: req.headers.username}).populate('notes').exec(function(err, foundUser){
             if(err){
                 res.json({message: err, code: 1});
             }else{
@@ -120,7 +120,7 @@ app.put('/notes/:id', middleware.handleAuthentication, function(req, res){
             res.json({message: err, code: 1});
         }else{
             var userOwnsNote = false;
-            User.findOne({username: req.body.username}).populate('notes').exec(function(err, foundUser){
+            User.findOne({username: req.headers.username}).populate('notes').exec(function(err, foundUser){
                 if(err){
                     res.json({message: err, code: 1});
                 }

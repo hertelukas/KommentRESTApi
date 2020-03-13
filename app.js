@@ -114,16 +114,39 @@ app.delete('/notes', middleware.handleAuthentication, function(req, res){
 
 //Edit route
 app.put('/notes/:id', middleware.handleAuthentication, function(req, res){
+    console.log("id: " + req.params.id + ", body: " + req.body.content);
     Note.findById(req.params.id, function(err, foundNote){
         if(err){
             res.json({message: err, code: 1});
         }else{
-            foundNote.content = req.body.content;
-            foundNote.lastEdited = new Date();
-            foundNote.title = req.body.title;
-            foundNote.save();
-            res.json({message: "Note updated", code: 200});
+            var userOwnsNote = false;
+            User.findOne({username: req.body.username}).populate('notes').exec(function(err, foundUser){
+                if(err){
+                    res.json({message: err, code: 1});
+                }
+                else{
+                    var i = 0;
+                    foundUser.forEach(note =>{
+                        if(note._id == req.params.id){
+                            userOwnsNote = true;
+                        }
+                        i++;
+                        if(i === foundUser.notes.length){
+                            if(userOwnsNote){
 
+                                foundNote.content = req.body.content;
+                                foundNote.lastEdited = new Date();
+                                foundNote.title = req.body.title;
+                                foundNote.save();
+                                res.json({message: "Note updated", code: 200});
+                            }
+                            else{
+                                res.json({message: "User not authorized", code: 401});
+                            }
+                        }
+                    })
+                }
+            });
         }
     });
 });

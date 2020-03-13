@@ -95,7 +95,7 @@ app.delete('/notes', middleware.handleAuthentication, function(req, res){
                 foundUser.notes.forEach(note => {
                     if(note._id == req.body._id){
                         foundUser.notes[i].delete();
-                        foundUser.save();Authentication
+                        foundUser.save();
                         noteDeleted = true;
                     }
                     i++;
@@ -114,7 +114,29 @@ app.delete('/notes', middleware.handleAuthentication, function(req, res){
 
 //Edit route
 app.put('/notes/:id', middleware.handleAuthentication, function(req, res){
-
+    User.findOne({username: req.body.username}).populate('notes').exec(function(err, foundUser){
+        if(err){
+            res.json({message: err, code: 1});
+        }else{
+            var i = 0;
+            var noteUpdated = false;
+            foundUser.notes.forEach(note => {
+                if(note._id == req.params.id){
+                    foundUser.notes[i] = new Note({title: req.body.title, content: req.body.content, lastEdited: new Date()});
+                    foundUser.save();
+                    noteUpdated = true;
+                }
+                i++;
+                if(i === foundUser.notes.length){
+                    if(noteDeleted){
+                        res.json({message: "Note updated", code: 200});
+                    }else{
+                        res.json({message: "Note not found", code: 202});
+                    }
+                }
+            });
+        }
+    });
 });
 
 //---------------------

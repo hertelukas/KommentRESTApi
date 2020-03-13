@@ -126,7 +126,7 @@ app.put('/notes/:id', middleware.handleAuthentication, function(req, res){
                 }
                 else{
                     var i = 0;
-                    foundUser.forEach(note =>{
+                    foundUser.notes.forEach(note =>{
                         if(note._id == req.params.id){
                             userOwnsNote = true;
                         }

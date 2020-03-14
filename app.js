@@ -82,39 +82,41 @@ app.post('/notes', middleware.handleAuthentication, function(req, res){
     }
 });
 
-app.delete('/notes', middleware.handleAuthentication, function(req, res){
-    if(!req.body._id){
-        res.json({message: "No note _id found in body", code: 3});
-    }else{
-        User.findOne({username: req.headers.username}).populate('notes').exec(function(err, foundUser){
-            if(err){
-                res.json({message: err, code: 1});
-            }else{
-                var i = 0;
-                var noteDeleted = false;
-                foundUser.notes.forEach(note => {
-                    if(note._id == req.body._id){
-                        foundUser.notes[i].delete();
-                        foundUser.save();
-                        noteDeleted = true;
-                    }
-                    i++;
-                    if(i === foundUser.notes.length){
-                        if(noteDeleted){
-                            res.json({message: "Note deleted", code: 200});
-                        }else{
-                            res.json({message: "Note not found", code: 202});
+app.delete('/notes/:id', middleware.handleAuthentication, function(req, res){
+    Note.findById(req.params.id, function(err, foundNote){
+        if(err){
+            res.json({message: err, code: 1});
+        }else{
+            var userOwnsNote = false;
+            User.findOne({username: req.headers.username}).populate('notes').exec(function(err, foundUser){
+                if(err){
+                    res.json({message: err, code: 1});
+                }
+                else{
+                    var i = 0;
+                    foundUser.notes.forEach(note =>{
+                        if(note._id == req.params.id){
+                            userOwnsNote = true;
                         }
-                    }
-                });
-            }
-        });
-    }
+                        i++;
+                        if(i === foundUser.notes.length){
+                            if(userOwnsNote){
+                                foundNote.delete();
+                                res.json({message: "Note deleted", code: 200});
+                            }
+                            else{
+                                res.json({message: "User not authorized", code: 401});
+                            }
+                        }
+                    });
+                }
+            });
+        }
+    });
 });
 
 //Edit route
 app.put('/notes/:id', middleware.handleAuthentication, function(req, res){
-    console.log("id: " + req.params.id + ", body: " + req.body.content);
     Note.findById(req.params.id, function(err, foundNote){
         if(err){
             res.json({message: err, code: 1});

@@ -117,6 +117,7 @@ app.delete('/notes/:id', middleware.handleAuthentication, function(req, res){
 
 //Edit route
 app.put('/notes/:id', middleware.handleAuthentication, function(req, res){
+    console.log(req.body.title + " "  + req.body.content);
     Note.findById(req.params.id, function(err, foundNote){
         if(err){
             res.json({message: err, code: 1});
@@ -135,7 +136,6 @@ app.put('/notes/:id', middleware.handleAuthentication, function(req, res){
                         i++;
                         if(i === foundUser.notes.length){
                             if(userOwnsNote){
-
                                 foundNote.content = req.body.content;
                                 foundNote.lastEdited = new Date();
                                 foundNote.title = req.body.title;

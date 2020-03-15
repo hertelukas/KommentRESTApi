@@ -117,7 +117,7 @@ app.delete('/notes/:id', middleware.handleAuthentication, function(req, res){
 
 //Edit route
 app.put('/notes/:id', middleware.handleAuthentication, function(req, res){
-    console.log(req.body + " "  + req.params);
+    console.log(req.body.title + " "  + req.params.title);
     Note.findById(req.params.id, function(err, foundNote){
         if(err){
             res.json({message: err, code: 1});

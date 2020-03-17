@@ -7,7 +7,7 @@ middlewareObj.handleAuthentication = function(req, res, next){
     console.log("Authenticating " + req.headers.username);
     if(req.headers.username && req.headers.password){
         User.findOne({username: req.headers.username}, function(err, foundUser){
-            if(typeof foundUser.hash != "undefined"){
+            if(typeof foundUser.hash !== "undefined" && foundUser.hash){
                 bcrypt.compare(req.headers.password, foundUser.hash, function(err, result){
                     if(err){
                         console.log(err);

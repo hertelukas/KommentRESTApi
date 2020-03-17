@@ -118,39 +118,43 @@ app.delete('/notes/:id', middleware.handleAuthentication, function(req, res){
 //Edit route
 app.put('/notes/:id', middleware.handleAuthentication, function(req, res){
     console.log(req.body.title + " "  + req.params.title);
-    Note.findById(req.params.id, function(err, foundNote){
-        if(err){
-            res.json({message: err, code: 1});
-        }else{
-            var userOwnsNote = false;
-            User.findOne({username: req.headers.username}).populate('notes').exec(function(err, foundUser){
-                if(err){
-                    res.json({message: err, code: 1});
-                }
-                else{
-                    var i = 0;
-                    foundUser.notes.forEach(note =>{
-                        if(note._id == req.params.id){
-                            userOwnsNote = true;
-                        }
-                        i++;
-                        if(i === foundUser.notes.length){
-                            if(userOwnsNote){
-                                foundNote.content = req.body.content;
-                                foundNote.lastEdited = new Date();
-                                foundNote.title = req.body.title;
-                                foundNote.save();
-                                res.json({message: "Note updated", code: 200});
+    if(!req.body.title){
+        req.json({message: "No title provided", code: 103});
+    }else{
+        Note.findById(req.params.id, function(err, foundNote){
+            if(err){
+                res.json({message: err, code: 1});
+            }else{
+                var userOwnsNote = false;
+                User.findOne({username: req.headers.username}).populate('notes').exec(function(err, foundUser){
+                    if(err){
+                        res.json({message: err, code: 1});
+                    }
+                    else{
+                        var i = 0;
+                        foundUser.notes.forEach(note =>{
+                            if(note._id == req.params.id){
+                                userOwnsNote = true;
                             }
-                            else{
-                                res.json({message: "User not authorized", code: 401});
+                            i++;
+                            if(i === foundUser.notes.length){
+                                if(userOwnsNote){
+                                    foundNote.content = req.body.content;
+                                    foundNote.lastEdited = new Date();
+                                    foundNote.title = req.body.title;
+                                    foundNote.save();
+                                    res.json({message: "Note updated", code: 200});
+                                }
+                                else{
+                                    res.json({message: "User not authorized", code: 401});
+                                }
                             }
-                        }
-                    })
-                }
-            });
-        }
-    });
+                        })
+                    }
+                });
+            }
+        });
+    }
 });
 
 //---------------------

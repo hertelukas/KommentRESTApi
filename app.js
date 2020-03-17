@@ -101,7 +101,6 @@ app.delete('/notes/:id', middleware.handleAuthentication, function(req, res){
                         i++;
                         if(i === foundUser.notes.length){
                             if(userOwnsNote){
-                                foundUser.notes[i].delete();
                                 foundNote.delete();
                                 res.json({message: "Note deleted", code: 200});
                             }
@@ -200,9 +199,7 @@ app.get('/users', middleware.handleAuthentication, function(req, res){
 
 app.delete('/users/:id', middleware.handleAuthentication, function(req, res){
 
-});
-
-
+});POST
 var port = process.env.PORT || 3000;
 app.listen(port, function () {
   console.log("Server Has Started!");

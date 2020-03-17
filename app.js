@@ -118,6 +118,7 @@ app.delete('/notes/:id', middleware.handleAuthentication, function(req, res){
 //Edit route
 app.put('/notes/:id', middleware.handleAuthentication, function(req, res){
     console.log(req.body.title + " "  + req.params.title);
+    console.log(req.body);
     if(!req.body.title){
         res.json({message: "No title provided", code: 103});
     }else{

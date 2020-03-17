@@ -119,7 +119,7 @@ app.delete('/notes/:id', middleware.handleAuthentication, function(req, res){
 app.put('/notes/:id', middleware.handleAuthentication, function(req, res){
     console.log(req.body.title + " "  + req.params.title);
     if(!req.body.title){
-        req.json({message: "No title provided", code: 103});
+        res.json({message: "No title provided", code: 103});
     }else{
         Note.findById(req.params.id, function(err, foundNote){
             if(err){

@@ -101,6 +101,7 @@ app.delete('/notes/:id', middleware.handleAuthentication, function(req, res){
                         i++;
                         if(i === foundUser.notes.length){
                             if(userOwnsNote){
+                                foundUser.notes[i].delete();
                                 foundNote.delete();
                                 res.json({message: "Note deleted", code: 200});
                             }

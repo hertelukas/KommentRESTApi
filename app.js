@@ -199,7 +199,8 @@ app.get('/users', middleware.handleAuthentication, function(req, res){
 
 app.delete('/users/:id', middleware.handleAuthentication, function(req, res){
 
-});POST
+});
+
 var port = process.env.PORT || 3000;
 app.listen(port, function () {
   console.log("Server Has Started!");

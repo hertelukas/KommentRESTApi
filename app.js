@@ -29,6 +29,7 @@ const saltRounds = 10;
 
 //Body Parser setup
 app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.json());
 
 //-------------------
 //Notes routes

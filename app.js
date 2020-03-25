@@ -206,7 +206,13 @@ app.get('/users', middleware.handleAuthentication, function(req, res){
 })
 
 app.delete('/users/:id', middleware.handleAuthentication, function(req, res){
-
+    User.findByIdAndDelete(req.params.id, function(err){
+        if(err){
+            res.json({message: err, code: 500});
+        }else{
+            res.json({message: "User deleted", code: 100});
+        }
+    })
 });
 
 var port = process.env.PORT || 3000;

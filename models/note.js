@@ -5,7 +5,7 @@ var NoteSchema = new mongoose.Schema({
     content: String,
     folders: [
         {
-            name: String
+            formType: String
         }
     ],
     lastEdited: String 

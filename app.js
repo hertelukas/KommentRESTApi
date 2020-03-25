@@ -118,7 +118,6 @@ app.delete('/notes/:id', middleware.handleAuthentication, function(req, res){
 
 //Edit route
 app.put('/notes/:id', middleware.handleAuthentication, function(req, res){
-    console.log(req.body.title + " "  + req.params.title);
     console.log(req.body);
     if(!req.body.title){
         res.json({message: "No title provided", code: 103});
@@ -144,6 +143,9 @@ app.put('/notes/:id', middleware.handleAuthentication, function(req, res){
                                     foundNote.content = req.body.content;
                                     foundNote.lastEdited = new Date();
                                     foundNote.title = req.body.title;
+                                    if(req.body.folders){
+                                        foundNote.folders = req.body.folders;
+                                    }
                                     foundNote.save();
                                     res.json({message: "Note updated", code: 200});
                                 }

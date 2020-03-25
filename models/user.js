@@ -11,4 +11,13 @@ var UserSchema = new mongoose.Schema({
     ]
 });
 
+const Note = require('./note');
+UserSchema.pre('remove', async function(){
+    await Note.remove({
+        _id:{
+            $in: this.notes
+        }
+    });
+});
+
 module.exports = mongoose.model("User", UserSchema)

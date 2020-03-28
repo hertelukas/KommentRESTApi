@@ -6,7 +6,8 @@ var NoteSchema = new mongoose.Schema({
     folders: [
         String
     ],
-    lastEdited: String 
+    lastEdited: String,
+    public: String
 });
 
 module.exports = mongoose.model("Note", NoteSchema)

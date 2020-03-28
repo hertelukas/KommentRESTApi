@@ -43,19 +43,23 @@ app.get('/notes', middleware.handleAuthentication, function(req, res){
 });
 
 app.get('/notes/:id', middleware.handleAuthentication,  function(req, res){
-    User.findOne({username: req.headers.username}).populate("notes").exec(function(err, foundUser){
-        var i = 0;
-
-        foundUser.notes.forEach(note => {
-            if(note._id == req.params.id){
-                res.json({note: note});
-            }
-            i++;
-            if(i === foundUser.notes.length){
-                res.send("No note found");
-            }
-        });
+    Note.findById(req.params.id, function(err, foundNote){
+        if(foundNote.public == true){
+            res.json({note: note});
+        }
     });
+    // User.findOne({username: req.headers.username}).populate("notes").exec(function(err, foundUser){
+    //     var i = 0;
+    //     foundUser.notes.forEach(note => {
+    //         if(note._id == req.params.id){
+    //             res.json({note: note});
+    //         }
+    //         i++;
+    //         if(i === foundUser.notes.length){
+    //             res.send("No note found");
+    //         }
+    //     });
+    // });
 });
 
 //Create a new note
@@ -68,7 +72,7 @@ app.post('/notes', middleware.handleAuthentication, function(req, res){
             if(err){
                 res.json({message: err, code: 500});
             } else{
-                var newNote = new Note({title: req.body.title, content: req.body.content, lastEdited: new Date()});
+                var newNote = new Note({title: req.body.title, content: req.body.content, lastEdited: new Date(), public: false});
                 Note.create(newNote, function(req, createdNote){
                     if(err){
                         res.json({message: err, code: 500});
@@ -145,6 +149,9 @@ app.put('/notes/:id', middleware.handleAuthentication, function(req, res){
                                     foundNote.title = req.body.title;
                                     if(req.body.folders){
                                         foundNote.folders = req.body.folders;
+                                    }
+                                    if(req.body.public){
+                                        foundNote.public = req.body.public;
                                     }
                                     foundNote.save();
                                     res.json({message: "Note updated", code: 200});

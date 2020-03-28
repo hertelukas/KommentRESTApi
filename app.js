@@ -44,7 +44,6 @@ app.get('/notes', middleware.handleAuthentication, function(req, res){
 
 app.get('/notes/:id', middleware.handleAuthentication,  function(req, res){
     Note.findById(req.params.id, function(err, foundNote){
-        console.log("Found note is public is " + foundNote.public);
         if(foundNote.public === "true"){
             res.json({note: foundNote});
         }else{
@@ -146,7 +145,7 @@ app.put('/notes/:id', middleware.handleAuthentication, function(req, res){
                             }
                             i++;
                             if(i === foundUser.notes.length){
-                                if(userOwnsNote){
+                                if(userOwnsNote || foundNote.public === "true"){
                                     foundNote.content = req.body.content;
                                     foundNote.lastEdited = new Date();
                                     foundNote.title = req.body.title;

@@ -153,6 +153,7 @@ app.put('/notes/:id', middleware.handleAuthentication, function(req, res){
                                         foundNote.folders = req.body.folders;
                                     }
                                     if(req.body.public){
+                                        console.log("information about public exists: " + req.body.public)
                                         foundNote.public = req.body.public;
                                     }
                                     foundNote.save();

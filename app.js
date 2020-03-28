@@ -44,9 +44,9 @@ app.get('/notes', middleware.handleAuthentication, function(req, res){
 
 app.get('/notes/:id', middleware.handleAuthentication,  function(req, res){
     Note.findById(req.params.id, function(err, foundNote){
-        console.log("Found not is public is " + foundNote.public);
+        console.log("Found note is public is " + foundNote.public);
         if(foundNote.public === "true"){
-            res.json({note: note});
+            res.json({note: foundNote});
         }else{
             res.json({message: "This note is private", code: 401})
         }

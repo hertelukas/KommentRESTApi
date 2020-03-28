@@ -44,7 +44,8 @@ app.get('/notes', middleware.handleAuthentication, function(req, res){
 
 app.get('/notes/:id', middleware.handleAuthentication,  function(req, res){
     Note.findById(req.params.id, function(err, foundNote){
-        if(foundNote.public == true){
+        console.log("Found not is public is " + foundNote.public);
+        if(foundNote.public === "true"){
             res.json({note: note});
         }else{
             res.json({message: "This note is private", code: 401})
@@ -153,7 +154,6 @@ app.put('/notes/:id', middleware.handleAuthentication, function(req, res){
                                         foundNote.folders = req.body.folders;
                                     }
                                     if(req.body.public){
-                                        console.log("information about public exists: " + req.body.public)
                                         foundNote.public = req.body.public;
                                     }
                                     foundNote.save();

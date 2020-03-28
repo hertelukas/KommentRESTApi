@@ -46,6 +46,8 @@ app.get('/notes/:id', middleware.handleAuthentication,  function(req, res){
     Note.findById(req.params.id, function(err, foundNote){
         if(foundNote.public == true){
             res.json({note: note});
+        }else{
+            res.json({message: "This note is private", code: 401})
         }
     });
     // User.findOne({username: req.headers.username}).populate("notes").exec(function(err, foundUser){
